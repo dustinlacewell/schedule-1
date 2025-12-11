@@ -1,9 +1,13 @@
 {
   "name": "schedule-1",
   "version": "1.0.0",
-  "description": "",
+  "description": "Schedule 1 - web terminal drug wars-style game",
   "main": "index.js",
   "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc -b",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -14,14 +18,22 @@
     "@types/chalk": "^0.4.31",
     "@types/node": "^25.0.0",
     "@types/readline-sync": "^1.4.8",
-    "typescript": "^5.9.3"
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.2",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.16",
+    "typescript": "^5.9.3",
+    "vite": "^6.0.5",
+    "@vitejs/plugin-react-swc": "^3.8.0"
   },
   "dependencies": {
-    "@types/react": "^19.2.7",
     "chalk": "^5.6.2",
     "ink": "^6.5.1",
     "ink-table": "^3.1.0",
     "react": "^19.2.1",
-    "readline-sync": "^1.4.10"
+    "react-dom": "^19.2.1",
+    "readline-sync": "^1.4.10",
+    "zustand": "^5.0.3"
   }
 }

@@ -1,5 +1,5 @@
 import { cities } from "./data/cities.js"
-import { BasicActionSet, globalActions, menu, simpleHeader } from "./Menu.js"
+import { BasicActionSet, globalActions, menu, simpleHeader } from "./menu.js"
 import { player } from "./state.js"
 import type { Action } from "./types.js"
 

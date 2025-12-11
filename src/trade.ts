@@ -1,5 +1,5 @@
 import { drugs } from "./data/drugs.js"
-import { BasicActionSet, globalActions, menu, simpleHeader } from "./Menu.js"
+import { BasicActionSet, globalActions, menu, simpleHeader } from "./menu.js"
 import { addItems, getPrice, itemCount, removeItems } from "./player.js"
 import { player } from "./state.js"
 import type { Action } from "./types.js"

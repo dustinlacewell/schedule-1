@@ -1,10 +1,10 @@
 import { cities } from './data/cities.js'
-import { BasicActionSet, globalActions, menu, simpleHeader } from './Menu.js'
+import { BasicActionSet, globalActions, menu, simpleHeader } from './menu.js'
+
 import { player } from './state.js'
 import { tradeMenu } from './trade.js'
 import { travelMenu } from './travel.js'
-import pharmaMenu from './pharmacy.js'
-import { randomizeNPCs } from './data/locations.js'
+import { pharmaMenu } from './pharmacy.js'
 
 const menuActions = new BasicActionSet(
     [
@@ -26,7 +26,7 @@ const menuActions = new BasicActionSet(
     ]
 )
 
-randomizeNPCs()
+// randomizeNPCs()
 
 menu({
     actions: [

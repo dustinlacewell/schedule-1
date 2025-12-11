@@ -119,35 +119,6 @@ export default BuySellMenu;
 
 render(
   <Box flexDirection="row" borderStyle="classic" minWidth="60" width="60" minHeight="20" height="20">
-    <Box flexDirection="column">
-      <Text>------------------------------------------------------------------------------------------------------------------------------------------------------------------------</Text>
-      <Newline />
-      <Newline />
-      <Newline />
-      <Newline />
-      <Newline />
-      <Newline />
-      <Newline />
-      <Newline />
-      <Newline />
-      <Newline />
-      <Newline />
-      <Newline />
-      <Newline />
-      <Newline />
-      <Newline />
-      <Newline />
-      <Newline />
-      <Newline />
-      <Newline />
-      <Newline />
-      <Newline />
-      <Newline />
-      <Newline />
-      <Newline />
-      <Newline />
-      <Newline />
-    </Box>
     <Box flexDirection="column" paddingLeft={1}>
       <Text>Money: {chalk.green('$' + player.money)}</Text>
       <Spacer />
