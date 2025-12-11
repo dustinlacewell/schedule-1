@@ -22,6 +22,8 @@
 - buying properties
 - buying "furniture" (grow lights, pots, etc etc)
 - installing furniture
+- stealing from shops
+    - should add heat
 
 - heat
     - Frequent trading in an areaincreases risk of police interventionn
@@ -40,3 +42,5 @@
         - Fine based on gear
         - Increased heatgear
         - Increased heat
+
+smuggling drugs and materials into the country for special goals

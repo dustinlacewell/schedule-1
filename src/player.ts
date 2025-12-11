@@ -30,3 +30,26 @@ export function removeItems(item: string, amount = 1) {
     const current = itemCount(item)
     player.inventory.set(item, current - amount)
 }
+
+export function buyItems(item: string, price: number, amount = 1) {
+    const totalCost = price * amount
+
+    if (player.money < totalCost) {
+        return false
+    }
+
+    player.money -= totalCost
+    addItems(item, amount)
+    return true
+}
+
+export function sellItems(item: string, price: number, amount = 1) {
+    const current = itemCount(item)
+    if (current < amount) {
+        return false
+    }
+
+    player.money += price * amount
+    removeItems(item, amount)
+    return true
+}

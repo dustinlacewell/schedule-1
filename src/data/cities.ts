@@ -1,4 +1,6 @@
 import type { City } from "../types.js"
+import { sampleLocations } from "./locations.js"
+import { sampleNPCs } from "./npcs.js"
 
 const chicago: City = {
     name: 'Chicago',
@@ -7,7 +9,8 @@ const chicago: City = {
         coke: 20,
         meth: 30,
     },
-    button: `c`
+    button: `c`,
+    locations: [],
 }
 
 const new_york: City = {
@@ -17,8 +20,8 @@ const new_york: City = {
         coke: 30,
         meth: 40,
     },
-    button: `n`
-
+    button: `n`,
+    locations: [],
 }
 
 const portland: City = {
@@ -28,7 +31,8 @@ const portland: City = {
         coke: 50,
         meth: 10,
     },
-    button: `p`
+    button: `p`,
+    locations: [],
 }
 
 export const cities: Record<string, City> = {
@@ -36,3 +40,16 @@ export const cities: Record<string, City> = {
     new_york,
     portland,
 }
+
+// export const initializeCities = () => {
+//     for (const cityKey in cities) {
+//         const city = cities[cityKey]!
+//         const locations = sampleLocations(3)
+//         const npcs = sampleNPCs(3)
+//         for (let i = 0; i < locations.length; i++) {
+//             const loc = locations[i]
+//             loc.who = npcs[i]
+//             city.locations.push(loc)
+//         }
+//     }
+// }

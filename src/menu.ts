@@ -7,7 +7,7 @@ import chalk from "chalk"
 export function simpleHeader(menuTitle: string) {
     return () => {
         console.log(`=== ${chalk.rgb(255, 165, 0)(menuTitle)} ===`)
-        console.log(`In ${chalk.blue(getCity().name)} with ${chalk.green('$' + player.money)}`)
+        console.log(`You have ${chalk.green('$' + player.money)}`)
         console.log("")
     }
 }

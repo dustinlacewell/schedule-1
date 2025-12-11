@@ -1,8 +1,7 @@
 import { drugs } from "./data/drugs.js"
-import { BasicActionSet, globalActions, menu, simpleHeader } from "./Menu.js"
-import { addItems, getPrice, itemCount, removeItems } from "./player.js"
+import { BasicActionSet } from "./menu.js"
+import { getPrice, addItems, itemCount, removeItems } from "./player.js"
 import { player } from "./state.js"
-import type { Action } from "./types.js"
 
 function buy(drugKey: string) {
     const price = getPrice(drugKey)
@@ -34,30 +33,6 @@ function handleBuySell(pressedKey: string) {
     }
 }
 
-function generateActions(): Action[] {
-    const actions: Action[] = []
-
-    for (const drugKey in drugs) {
-        const drug = drugs[drugKey]!
-        actions.push({
-            key: drug.buttonBuy,
-            label: `Buy ${drug.name}`,
-            action: () => {
-                buy(drugKey)
-            },
-        })
-        actions.push({
-            key: drug.buttonSell,
-            label: `Sell ${drug.name}`,
-            action: () => {
-                sell(drugKey)
-            },
-        })
-    }
-
-    return actions
-}
-
 export class TradeActionSet extends BasicActionSet {
     render() {
         for (const drugKey in drugs) {
@@ -70,14 +45,30 @@ export class TradeActionSet extends BasicActionSet {
     }
 }
 
-export function tradeMenu() {
-    const tradeActions = new TradeActionSet(generateActions())
+export type StoreStock = Record<string, {
+    quantity: number,
+    price: number,
+}>
 
-    menu({
-        actions: [
-            tradeActions,
-            globalActions,
-        ],
-        header: simpleHeader("TRADE")
-    })
+// specific pharmacuticals, not generic terms, only those useful for making drugs
+const pharmacy: StoreStock = {
+    "diazepam": { quantity: 10, price: 50 },
+    "paracetamol": { quantity: 20, price: 10 },
+    "ibuprofen": { quantity: 15, price: 15 },
+    "codeine": { quantity: 5, price: 100 },
+    "amoxicillin": { quantity: 8, price: 80 },
 }
+
+// export function exchangeMenu(
+//     stock: Record<string, {
+//         quantity: number,
+//         price: number,
+//     }>
+// ) {
+
+//     const actions: Action[] = []
+//     for (const itemKey in stock) {
+//         const item = stock[itemKey]!
+//         actions.push({
+            
+// }
