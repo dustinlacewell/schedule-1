@@ -1,16 +1,13 @@
 import React from "react";
-import { useGameStore } from "../store/gameStore";
+import { useNavigationStore } from "../store/navigationStore";
 import { HudBar } from "./HudBar";
 import { CityScreen } from "./screens/CityScreen";
 import { TravelScreen } from "./screens/TravelScreen";
 import { NpcListScreen } from "./screens/NpcListScreen";
 import { NpcInteractScreen } from "./screens/NpcInteractScreen";
-import { useKeyboard } from "./useKeyboard";
 
 export const Terminal: React.FC = () => {
-  const screen = useGameStore((s) => s.screen);
-
-  useKeyboard();
+  const screen = useNavigationStore((s) => s.screen);
 
   let content: React.ReactNode = null;
   if (screen === "city") content = <CityScreen />;

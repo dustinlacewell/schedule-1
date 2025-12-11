@@ -1,19 +1,37 @@
-import React from "react";
-import { useGameStore } from "../../store/gameStore";
+import React, { useCallback } from "react";
+import { useWorldStore } from "../../store/worldStore";
+import { useNavigationStore } from "../../store/navigationStore";
+import { useUiStore } from "../../store/uiStore";
 import { getCityTemplate } from "../../data/cities";
 import { getLocationTemplate } from "../../data/locations";
 import { Panel } from "../components/Panel";
 import { CursorList, type CursorListItem } from "../components/CursorList";
 import { KeyHint } from "../components/KeyHint";
+import { useKeys } from "../hooks/useScreenKeys";
 
 export const CityScreen: React.FC = () => {
-  const currentCityId = useGameStore((s) => s.currentCityId);
-  const cities = useGameStore((s) => s.cities);
-  const locations = useGameStore((s) => s.locations);
-  const focusedPanel = useGameStore((s) => s.focusedPanel);
-  const cursor = useGameStore((s) => s.cursors.locations);
+  const currentCityId = useNavigationStore((s) => s.currentCityId);
+  const cities = useWorldStore((s) => s.cities);
+  const locations = useWorldStore((s) => s.locations);
+  const focusedPanel = useUiStore((s) => s.focusedPanel);
+  const cursor = useUiStore((s) => s.cursors.locations);
 
   const cityInst = cities[currentCityId];
+  const locationCount = cityInst?.locationIds.length ?? 0;
+
+  useKeys(useCallback((e: KeyboardEvent) => {
+    const { setScreen, enterLocation } = useNavigationStore.getState();
+    const { moveCursor } = useUiStore.getState();
+    const city = useWorldStore.getState().cities[currentCityId];
+
+    if (e.key === "ArrowUp") moveCursor("locations", -1, locationCount);
+    else if (e.key === "ArrowDown") moveCursor("locations", 1, locationCount);
+    else if (e.key === "Enter") {
+      const locId = city?.locationIds[useUiStore.getState().cursors.locations];
+      if (locId) enterLocation(locId);
+    } else if (e.key === "g") setScreen("travel");
+  }, [currentCityId, locationCount]));
+
   const cityTpl = cityInst ? getCityTemplate(cityInst.templateId) : null;
 
   const locationItems: CursorListItem[] = (cityInst?.locationIds ?? []).map((locId) => {
