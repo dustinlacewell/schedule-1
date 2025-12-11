@@ -7,9 +7,7 @@
     "types": ["node", "vite/client"],
     "jsx": "react-jsx",
 
-    "sourceMap": true,
-    "declaration": true,
-    "declarationMap": true,
+    "noEmit": true,
 
     "strict": true,
     "noUncheckedIndexedAccess": true,
