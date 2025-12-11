@@ -1,55 +1,37 @@
-import type { City } from "../types.js"
-import { sampleLocations } from "./locations.js"
-import { sampleNPCs } from "./npcs.js"
+// City templates - flat registry of all cities
+// Cities are instantiated at runtime with locations and NPCs
 
-const chicago: City = {
-    name: 'Chicago',
-    market: {
-        weed: 10,
-        coke: 20,
-        meth: 30,
-    },
-    button: `c`,
-    locations: [],
-}
+export type CityTemplateId = string;
 
-const new_york: City = {
-    name: 'New York',
-    market: {
-        weed: 5,
-        coke: 30,
-        meth: 40,
-    },
-    button: `n`,
-    locations: [],
-}
+export type CityTemplate = {
+  id: CityTemplateId;
+  name: string;
+  description: string;
+  priceModifier: number; // global multiplier for prices in this city
+};
 
-const portland: City = {
-    name: 'Portland',
-    market: {
-        weed: 20,
-        coke: 50,
-        meth: 10,
-    },
-    button: `p`,
-    locations: [],
-}
+export const cityTemplates: Record<CityTemplateId, CityTemplate> = {
+  chicago: {
+    id: "chicago",
+    name: "Chicago",
+    description: "The Windy City. Deep dish pizza and deeper pockets.",
+    priceModifier: 1.0,
+  },
+  new_york: {
+    id: "new_york",
+    name: "New York",
+    description: "The city that never sleeps. High demand, high prices.",
+    priceModifier: 1.2,
+  },
+  portland: {
+    id: "portland",
+    name: "Portland",
+    description: "Keep it weird. Relaxed vibes and cheaper greens.",
+    priceModifier: 0.9,
+  },
+};
 
-export const cities: Record<string, City> = {
-    chicago,
-    new_york,
-    portland,
-}
+export const getCityTemplate = (id: CityTemplateId): CityTemplate | undefined =>
+  cityTemplates[id];
 
-// export const initializeCities = () => {
-//     for (const cityKey in cities) {
-//         const city = cities[cityKey]!
-//         const locations = sampleLocations(3)
-//         const npcs = sampleNPCs(3)
-//         for (let i = 0; i < locations.length; i++) {
-//             const loc = locations[i]
-//             loc.who = npcs[i]
-//             city.locations.push(loc)
-//         }
-//     }
-// }
+export const allCityTemplateIds = (): CityTemplateId[] => Object.keys(cityTemplates);

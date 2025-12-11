@@ -1,46 +1,118 @@
 import { useEffect } from "react";
-import { useGameStore, getDrugKeys } from "../store/gameStore";
-import { cities } from "../data/cities.js";
-import { drugs } from "../data/drugs.js";
+import { useGameStore } from "../store/gameStore";
 
 export const useKeyboard = () => {
   const screen = useGameStore((s) => s.screen);
+  const focusedPanel = useGameStore((s) => s.focusedPanel);
+  const cursors = useGameStore((s) => s.cursors);
+  const cities = useGameStore((s) => s.cities);
+  const locations = useGameStore((s) => s.locations);
+  const currentCityId = useGameStore((s) => s.currentCityId);
+  const currentLocationId = useGameStore((s) => s.currentLocationId);
+
   const setScreen = useGameStore((s) => s.setScreen);
-  const buyItem = useGameStore((s) => s.buyItem);
-  const sellItem = useGameStore((s) => s.sellItem);
   const travelTo = useGameStore((s) => s.travelTo);
+  const enterLocation = useGameStore((s) => s.enterLocation);
+  const enterNpc = useGameStore((s) => s.enterNpc);
+  const back = useGameStore((s) => s.back);
+  const cycleFocus = useGameStore((s) => s.cycleFocus);
+  const moveCursor = useGameStore((s) => s.moveCursor);
+  const buyFromNpc = useGameStore((s) => s.buyFromNpc);
+  const sellToNpc = useGameStore((s) => s.sellToNpc);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       const key = e.key;
 
+      // Global: quit
+      if (key === "Q") {
+        // Could add a quit confirmation later
+        return;
+      }
+
+      // ─── City Screen ─────────────────────────────────────────
       if (screen === "city") {
-        if (key === "t") setScreen("trade");
-        else if (key === "g") setScreen("travel");
-        else if (key === "p") setScreen("pharmacy");
-      } else if (screen === "trade") {
-        if (key === "q") setScreen("city");
-
-        for (const drugKey of getDrugKeys()) {
-          const drug = drugs[drugKey]!;
-          if (key === drug.buttonBuy) buyItem(drugKey);
-          if (key === drug.buttonSell) sellItem(drugKey);
+        if (key === "ArrowUp") moveCursor(-1);
+        else if (key === "ArrowDown") moveCursor(1);
+        else if (key === "Enter") {
+          const city = cities[currentCityId];
+          const locId = city?.locationIds[cursors.locations];
+          if (locId) enterLocation(locId);
+        } else if (key === "g") {
+          setScreen("travel");
+        } else if (key === "q") {
+          // On city screen, q could quit or do nothing
         }
-      } else if (screen === "travel") {
-        if (key === "q") setScreen("city");
+        return;
+      }
 
-        for (const cityKey in cities) {
-          const city = cities[cityKey]!;
-          if (key === city.button) {
-            travelTo(cityKey);
-          }
+      // ─── Travel Screen ───────────────────────────────────────
+      if (screen === "travel") {
+        if (key === "ArrowUp") moveCursor(-1);
+        else if (key === "ArrowDown") moveCursor(1);
+        else if (key === "Enter") {
+          const cityList = Object.values(cities);
+          const city = cityList[cursors.locations];
+          if (city) travelTo(city.id);
+        } else if (key === "q") {
+          back();
         }
-      } else if (screen === "pharmacy") {
-        if (key === "q") setScreen("city");
+        return;
+      }
+
+      // ─── NPC List Screen ─────────────────────────────────────
+      if (screen === "npcList") {
+        if (key === "ArrowUp") moveCursor(-1);
+        else if (key === "ArrowDown") moveCursor(1);
+        else if (key === "Enter") {
+          const loc = currentLocationId ? locations[currentLocationId] : null;
+          const npcId = loc?.npcIds[cursors.npcs];
+          if (npcId) enterNpc(npcId);
+        } else if (key === "q") {
+          back();
+        }
+        return;
+      }
+
+      // ─── NPC Interact Screen ─────────────────────────────────
+      if (screen === "npcInteract") {
+        if (key === "Tab") {
+          cycleFocus(e.shiftKey ? -1 : 1);
+        } else if (key === "ArrowUp") {
+          moveCursor(-1);
+        } else if (key === "ArrowDown") {
+          moveCursor(1);
+        } else if (key === "ArrowLeft" || (key === "Enter" && focusedPanel === "npcInv")) {
+          // Buy from NPC
+          buyFromNpc();
+        } else if (key === "ArrowRight" || (key === "Enter" && focusedPanel === "playerInv")) {
+          // Sell to NPC
+          sellToNpc();
+        } else if (key === "q") {
+          back();
+        }
+        return;
       }
     };
 
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [screen, setScreen, buyItem, sellItem, travelTo]);
+  }, [
+    screen,
+    focusedPanel,
+    cursors,
+    cities,
+    locations,
+    currentCityId,
+    currentLocationId,
+    setScreen,
+    travelTo,
+    enterLocation,
+    enterNpc,
+    back,
+    cycleFocus,
+    moveCursor,
+    buyFromNpc,
+    sellToNpc,
+  ]);
 };

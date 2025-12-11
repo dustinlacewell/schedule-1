@@ -1,97 +1,73 @@
+// Item templates - flat registry of all items in the game
 
-export type ItemProp = {
-    key: string,
-    value: any,
-}
+export type ItemId = string;
 
-export type Item = {
-    name: string,
-    buyKey: string,
-    sellKey: string,
-    weight?: number,
-    props: Record<string, any>,
-}
+export type ItemTemplate = {
+  id: ItemId;
+  name: string;
+  category: "drug" | "pharmaceutical" | "other";
+  basePrice: number;
+  props?: Record<string, unknown>;
+};
 
-const weed: Item = {
-    name: 'Weed',
-    buyKey: 'w',
-    sellKey: 'W',
-    props: {
-        addictiveness: 0.2,
-    }
-}
-
-const weedBrick: Item = {
-    name: 'Weed Brick',
-    buyKey: 'b',
-    sellKey: 'B',
-}
-
-const coke: Item = {
-    name: 'Coke',
-    buyKey: 'c',
-    sellKey: 'C',
-    props: {
-        addictiveness: 0.5
-    }
-}
-
-const cokeBrick: Item = {
-    name: 'Coke Brick',
-    buyKey: 'b',
-    sellKey: 'B',
-}
-
-const meth: Item = {
-    name: 'Meth',
-    buyKey: 'm',
-    sellKey: 'M',
-    props: {
-        addictiveness: 0.8
-    }
-}
-
-export const diazepam: Item = {
+export const itemTemplates: Record<ItemId, ItemTemplate> = {
+  weed: {
+    id: "weed",
+    name: "Weed",
+    category: "drug",
+    basePrice: 15,
+    props: { addictiveness: 0.2 },
+  },
+  coke: {
+    id: "coke",
+    name: "Coke",
+    category: "drug",
+    basePrice: 80,
+    props: { addictiveness: 0.5 },
+  },
+  meth: {
+    id: "meth",
+    name: "Meth",
+    category: "drug",
+    basePrice: 120,
+    props: { addictiveness: 0.8 },
+  },
+  diazepam: {
+    id: "diazepam",
     name: "Diazepam",
-    buyKey: "d",
-    sellKey: "D",
-    props: {
-        addictiveness: 0.4
-    }
-}
-
-export const paracetamol: Item = {
+    category: "pharmaceutical",
+    basePrice: 50,
+    props: { addictiveness: 0.4 },
+  },
+  paracetamol: {
+    id: "paracetamol",
     name: "Paracetamol",
-    buyKey: "p",
-    sellKey: "P",
-    props: {
-        addictiveness: 0.1
-    }
-}
-
-export const ibuprofen: Item = {
+    category: "pharmaceutical",
+    basePrice: 10,
+    props: { addictiveness: 0.1 },
+  },
+  ibuprofen: {
+    id: "ibuprofen",
     name: "Ibuprofen",
-    buyKey: "i",
-    sellKey: "I",
-    props: {
-        addictiveness: 0.1
-    }
-}
-
-export const codeine: Item = {
+    category: "pharmaceutical",
+    basePrice: 15,
+    props: { addictiveness: 0.1 },
+  },
+  codeine: {
+    id: "codeine",
     name: "Codeine",
-    buyKey: "c",
-    sellKey: "C",
-    props: {
-        addictiveness: 0.6
-    }
-}
-
-export const amoxicillin: Item = {
+    category: "pharmaceutical",
+    basePrice: 100,
+    props: { addictiveness: 0.6 },
+  },
+  amoxicillin: {
+    id: "amoxicillin",
     name: "Amoxicillin",
-    buyKey: "a",
-    sellKey: "A",
-    props: {
-        addictiveness: 0.2
-    }
-}
+    category: "pharmaceutical",
+    basePrice: 80,
+    props: { addictiveness: 0.2 },
+  },
+};
+
+export const getItemTemplate = (id: ItemId): ItemTemplate | undefined =>
+  itemTemplates[id];

@@ -1,48 +1,72 @@
-export class NPC {
-    name: string
-    likes: string[]
-    hates: string[]
-    catchphrase: string = "Yo brotha!"
+// NPC templates - flat registry of all possible NPCs
+// Likes/hates affect pricing when trading
 
-    constructor(
-        name: string, 
-        likes: string[], 
-        hates: string[],
-        catchphrase: string
-    ) {
-        this.name = name
-        this.likes = likes
-        this.hates = hates
-        this.catchphrase = catchphrase
-    }
-}
+import type { ItemId } from "./items";
 
+export type NpcTemplateId = string;
 
-const cyber = new NPC(
-    "Cyber", 
-    ["Weed"], 
-    ["Coke"],
-    "I say a lot of things all the time."
-)
+export type NpcTemplate = {
+  id: NpcTemplateId;
+  name: string;
+  likes: ItemId[];
+  hates: ItemId[];
+  catchphrase: string;
+};
 
-const ldle = new NPC("ldle", ["Weed", "Meth"], ["Coke"], "Blinks.")
-const valen = new NPC("Valen", ["Coke"], ["Weed", "Meth"], "I don't know what to tell you.")
+export const npcTemplates: Record<NpcTemplateId, NpcTemplate> = {
+  cyber: {
+    id: "cyber",
+    name: "Cyber",
+    likes: ["weed"],
+    hates: ["coke"],
+    catchphrase: "I say a lot of things all the time.",
+  },
+  ldle: {
+    id: "ldle",
+    name: "ldle",
+    likes: ["weed", "meth"],
+    hates: ["coke"],
+    catchphrase: "Blinks.",
+  },
+  valen: {
+    id: "valen",
+    name: "Valen",
+    likes: ["coke"],
+    hates: ["weed", "meth"],
+    catchphrase: "I don't know what to tell you.",
+  },
+  doc: {
+    id: "doc",
+    name: "Doc",
+    likes: ["diazepam", "codeine"],
+    hates: [],
+    catchphrase: "What seems to be the problem?",
+  },
+  sketchy_pete: {
+    id: "sketchy_pete",
+    name: "Sketchy Pete",
+    likes: ["meth"],
+    hates: ["paracetamol"],
+    catchphrase: "You didn't see me here.",
+  },
+  maria: {
+    id: "maria",
+    name: "Maria",
+    likes: ["weed", "ibuprofen"],
+    hates: ["meth"],
+    catchphrase: "Keep it chill, yeah?",
+  },
+};
 
-export const npcs = [
-    cyber,
-    ldle,
-    valen,
-]
+export const getNpcTemplate = (id: NpcTemplateId): NpcTemplate | undefined =>
+  npcTemplates[id];
 
-export const shuffledNPCs = () => {
-    const shuffled = npcs
-        .map(value => ({ value, sort: Math.random() }))
-        .sort((a, b) => a.sort - b.sort)
-        .map(({ value }) => value)
-    return shuffled
-}
+export const allNpcTemplateIds = (): NpcTemplateId[] => Object.keys(npcTemplates);
 
-export const sampleNPCs = (count: number) => {
-    const shuffled = shuffledNPCs()
-    return shuffled.slice(0, count)
-}
+export const sampleNpcTemplateIds = (count: number): NpcTemplateId[] => {
+  const shuffled = allNpcTemplateIds()
+    .map((id) => ({ id, sort: Math.random() }))
+    .sort((a, b) => a.sort - b.sort)
+    .map(({ id }) => id);
+  return shuffled.slice(0, count);
+};
