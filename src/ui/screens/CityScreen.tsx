@@ -1,52 +1,36 @@
 import React, { useMemo } from "react";
-import { useWorldStore } from "../../store/worldStore";
-import { useNavigationStore } from "../../store/navigationStore";
-import { getCityTemplate } from "../../data/cities";
-import { getLocationTemplate } from "../../data/locations";
+import { useCurrentCity, useCurrentCityLocations, useNavigation } from "../../ecs";
 import { Panel } from "../components/Panel";
 import { CursorList, type CursorListItem } from "../components/CursorList";
 import { KeyHint } from "../components/KeyHint";
 import { useActions } from "../hooks/useKeys";
 
 export const CityScreen: React.FC = () => {
-  const currentCityId = useNavigationStore((s) => s.currentCityId);
-  const cities = useWorldStore((s) => s.cities);
-  const locations = useWorldStore((s) => s.locations);
-  const enterLocation = useNavigationStore((s) => s.enterLocation);
-  const setScreen = useNavigationStore((s) => s.setScreen);
-
-  const cityInst = cities[currentCityId];
-  const cityTpl = cityInst ? getCityTemplate(cityInst.templateId) : null;
+  const city = useCurrentCity();
+  const locations = useCurrentCityLocations();
+  const { enterLocation, goToTravelScreen } = useNavigation();
 
   useActions(useMemo(() => ({
-    travel: () => setScreen("travel"),
-  }), [setScreen]));
+    travel: goToTravelScreen,
+  }), [goToTravelScreen]));
 
-  const locationItems: CursorListItem[] = (cityInst?.locationIds ?? []).map((locId) => {
-    const locInst = locations[locId];
-    const locTpl = locInst ? getLocationTemplate(locInst.templateId) : null;
-    return {
-      id: locId,
-      label: locTpl?.name ?? "Unknown",
-      sublabel: `${locInst?.npcIds.length ?? 0} NPCs`,
-    };
-  });
-
-  const handleLocationSelect = (locId: string) => {
-    enterLocation(locId);
-  };
+  const locationItems: CursorListItem[] = locations.map((loc) => ({
+    id: loc.id,
+    label: loc.name,
+    sublabel: `${loc.npcCount} NPCs`,
+  }));
 
   return (
     <div className="flex flex-col h-full gap-1">
-      <Panel title={cityTpl?.name ?? "Unknown City"} className="shrink-0">
-        <div className="px-1 py-0.5 text-xs">{cityTpl?.description ?? ""}</div>
+      <Panel title={city?.name ?? "Unknown City"} className="shrink-0">
+        <div className="px-1 py-0.5 text-xs">{city?.description ?? ""}</div>
       </Panel>
 
       <Panel title="Locations" focused className="flex-1 min-h-0">
         <CursorList
           items={locationItems}
           active
-          onSelect={handleLocationSelect}
+          onSelect={enterLocation}
           emptyMessage="No locations"
         />
       </Panel>

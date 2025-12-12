@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { matchesAction } from "../../input/keymap";
-import { getItemTemplate } from "../../data/items";
-import type { Inventory } from "../../store/worldStore";
+import { getItemName, type InventoryEntry } from "../../ecs";
 
 export type InventoryListProps = {
-  inventory: Inventory;
+  items: InventoryEntry[];
   active: boolean;
   onSelect: (itemId: string) => void;
   maxVisible?: number;
@@ -12,14 +11,14 @@ export type InventoryListProps = {
 };
 
 export const InventoryList: React.FC<InventoryListProps> = ({
-  inventory,
+  items,
   active,
   onSelect,
   maxVisible = 8,
   emptyMessage = "(empty)",
 }) => {
   const [cursor, setCursor] = useState(0);
-  const entries = Object.entries(inventory).filter(([, e]) => e.quantity > 0);
+  const entries = items.filter((e) => e.quantity > 0);
 
   // Clamp cursor if entries shrink
   useEffect(() => {
@@ -42,7 +41,7 @@ export const InventoryList: React.FC<InventoryListProps> = ({
       } else if (matchesAction(e.key, "confirm")) {
         e.preventDefault();
         const entry = entries[cursor];
-        if (entry) onSelect(entry[0]);
+        if (entry) onSelect(entry.itemId);
       }
     };
 
@@ -64,17 +63,16 @@ export const InventoryList: React.FC<InventoryListProps> = ({
 
   return (
     <div className="px-1 py-0.5 text-xs font-mono">
-      {visible.map(([itemId, entry], i) => {
+      {visible.map((entry, i) => {
         const realIndex = start + i;
         const isSelected = realIndex === cursor;
         const prefix = isSelected ? "> " : "  ";
-        const tpl = getItemTemplate(itemId);
-        const name = tpl?.name ?? itemId;
+        const name = getItemName(entry.itemId);
         return (
-          <div key={itemId} className={isSelected ? "text-cyan-300" : ""}>
+          <div key={entry.itemId} className={isSelected ? "text-cyan-300" : ""}>
             {prefix}
             {name} x{entry.quantity}
-            <span className="text-green-400 ml-2">${entry.price}</span>
+            <span className="text-green-400 ml-2">${entry.unitPrice}</span>
           </div>
         );
       })}

@@ -1,31 +1,22 @@
 import React from "react";
-import { useWorldStore } from "../../store/worldStore";
-import { useNavigationStore } from "../../store/navigationStore";
-import { getCityTemplate } from "../../data/cities";
+import { useAllCities, useCurrentCity, useNavigation } from "../../ecs";
 import { Panel } from "../components/Panel";
 import { CursorList, type CursorListItem } from "../components/CursorList";
 import { KeyHint } from "../components/KeyHint";
 
 export const TravelScreen: React.FC = () => {
-  const cities = useWorldStore((s) => s.cities);
-  const currentCityId = useNavigationStore((s) => s.currentCityId);
-  const travelTo = useNavigationStore((s) => s.travelTo);
-  const back = useNavigationStore((s) => s.back);
+  const cities = useAllCities();
+  const currentCity = useCurrentCity();
+  const { travel, exitLocation } = useNavigation();
 
-  const cityList = Object.values(cities);
-
-  const cityItems: CursorListItem[] = cityList.map((city) => {
-    const tpl = getCityTemplate(city.templateId);
-    const isCurrent = city.id === currentCityId;
-    return {
-      id: city.id,
-      label: tpl?.name ?? "Unknown",
-      sublabel: isCurrent ? "(current)" : "",
-    };
-  });
+  const cityItems: CursorListItem[] = cities.map((city) => ({
+    id: city.id,
+    label: city.name,
+    sublabel: city.id === currentCity?.id ? "(current)" : "",
+  }));
 
   const handleCitySelect = (cityId: string) => {
-    travelTo(cityId);
+    travel(cityId, 0);  // TODO: Get fare from ticket clerk
   };
 
   return (
@@ -35,7 +26,7 @@ export const TravelScreen: React.FC = () => {
           items={cityItems}
           active
           onSelect={handleCitySelect}
-          onCancel={back}
+          onCancel={exitLocation}
           emptyMessage="No cities"
         />
       </Panel>
