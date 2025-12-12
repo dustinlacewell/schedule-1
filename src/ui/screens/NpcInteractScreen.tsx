@@ -1,41 +1,93 @@
-import React, { useCallback } from "react";
+import React, { useState, useEffect } from "react";
+import { matchesAction } from "../../input/keymap";
 import { useWorldStore } from "../../store/worldStore";
 import { usePlayerStore } from "../../store/playerStore";
 import { useNavigationStore } from "../../store/navigationStore";
-import { useUiStore } from "../../store/uiStore";
-import { buyFromNpc, sellToNpc } from "../../store/tradeStore";
 import { getNpcTemplate } from "../../data/npcs";
+import { getItemTemplate } from "../../data/items";
 import { Panel } from "../components/Panel";
 import { InventoryList } from "../components/InventoryList";
 import { KeyHint } from "../components/KeyHint";
-import { useKeys } from "../hooks/useScreenKeys";
+
+type ActivePanel = "player" | "npc";
 
 export const NpcInteractScreen: React.FC = () => {
+  const [activePanel, setActivePanel] = useState<ActivePanel>("npc");
+
   const currentNpcId = useNavigationStore((s) => s.currentNpcId);
+  const back = useNavigationStore((s) => s.back);
   const npcs = useWorldStore((s) => s.npcs);
+  const updateNpcInventory = useWorldStore((s) => s.updateNpcInventory);
   const playerInventory = usePlayerStore((s) => s.inventory);
-  const focusedPanel = useUiStore((s) => s.focusedPanel);
-  const cursors = useUiStore((s) => s.cursors);
+  const playerMoney = usePlayerStore((s) => s.money);
+  const addItem = usePlayerStore((s) => s.addItem);
+  const removeItem = usePlayerStore((s) => s.removeItem);
+  const addMoney = usePlayerStore((s) => s.addMoney);
+  const removeMoney = usePlayerStore((s) => s.removeMoney);
 
   const npcInst = currentNpcId ? npcs[currentNpcId] : null;
   const npcTpl = npcInst ? getNpcTemplate(npcInst.templateId) : null;
   const npcInventory = npcInst?.inventory ?? {};
-  const playerInvCount = Object.keys(playerInventory).length;
-  const npcInvCount = Object.keys(npcInventory).length;
 
-  useKeys(useCallback((e: KeyboardEvent) => {
-    const { back } = useNavigationStore.getState();
-    const { moveCursor, cycleFocus, focusedPanel } = useUiStore.getState();
-    const pInvLen = Object.keys(usePlayerStore.getState().inventory).length;
-    const nInvLen = Object.keys(useWorldStore.getState().npcs[currentNpcId ?? ""]?.inventory ?? {}).length;
+  // Handle Tab to switch panels, q to go back
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (matchesAction(e.key, "cycle_focus")) {
+        e.preventDefault();
+        setActivePanel((p) => (p === "player" ? "npc" : "player"));
+      } else if (matchesAction(e.key, "cancel")) {
+        e.preventDefault();
+        back();
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [back]);
 
-    if (e.key === "Tab") cycleFocus(["playerInv", "npcInv"], e.shiftKey ? -1 : 1);
-    else if (e.key === "ArrowUp") moveCursor(focusedPanel, -1, focusedPanel === "playerInv" ? pInvLen : nInvLen);
-    else if (e.key === "ArrowDown") moveCursor(focusedPanel, 1, focusedPanel === "playerInv" ? pInvLen : nInvLen);
-    else if (e.key === "ArrowLeft" || (e.key === "Enter" && focusedPanel === "npcInv")) buyFromNpc();
-    else if (e.key === "ArrowRight" || (e.key === "Enter" && focusedPanel === "playerInv")) sellToNpc();
-    else if (e.key === "q") back();
-  }, [currentNpcId, playerInvCount, npcInvCount]));
+  // Buy from NPC (player selects item in NPC inventory)
+  const handleBuyItem = (itemId: string) => {
+    if (!currentNpcId || !npcInst) return;
+    const npcEntry = npcInventory[itemId];
+    if (!npcEntry || npcEntry.quantity <= 0) return;
+    if (playerMoney < npcEntry.price) return;
+
+    // Update NPC inventory
+    const newNpcInv = {
+      ...npcInventory,
+      [itemId]: { ...npcEntry, quantity: npcEntry.quantity - 1 },
+    };
+    updateNpcInventory(currentNpcId, newNpcInv);
+
+    // Update player
+    removeMoney(npcEntry.price);
+    addItem(itemId, 1, npcEntry.price);
+  };
+
+  // Sell to NPC (player selects item in player inventory)
+  const handleSellItem = (itemId: string) => {
+    if (!currentNpcId || !npcInst) return;
+    const playerEntry = playerInventory[itemId];
+    if (!playerEntry || playerEntry.quantity <= 0) return;
+
+    // Determine sell price
+    const npcEntry = npcInventory[itemId];
+    const sellPrice = npcEntry?.price ?? Math.round(playerEntry.price * 0.8);
+
+    // Update player inventory
+    if (!removeItem(itemId, 1)) return;
+
+    // Update NPC inventory
+    const newNpcInv = { ...npcInventory };
+    if (npcEntry) {
+      newNpcInv[itemId] = { ...npcEntry, quantity: npcEntry.quantity + 1 };
+    } else {
+      newNpcInv[itemId] = { quantity: 1, price: sellPrice };
+    }
+    updateNpcInventory(currentNpcId, newNpcInv);
+
+    // Add money
+    addMoney(sellPrice);
+  };
 
   const npcName = npcTpl?.name ?? "Unknown";
   const npcCatchphrase = npcTpl?.catchphrase ?? "";
@@ -44,7 +96,6 @@ export const NpcInteractScreen: React.FC = () => {
 
   return (
     <div className="flex flex-col h-full gap-1">
-      {/* NPC info panel */}
       <Panel title={npcName} className="shrink-0">
         <div className="px-1 py-0.5 text-xs">
           <div className="italic text-gray-400">"{npcCatchphrase}"</div>
@@ -53,44 +104,41 @@ export const NpcInteractScreen: React.FC = () => {
         </div>
       </Panel>
 
-      {/* Inventories side by side */}
       <div className="flex flex-1 gap-1 min-h-0">
-        {/* Player inventory */}
         <Panel
           title="Your Items"
-          focused={focusedPanel === "playerInv"}
+          focused={activePanel === "player"}
           className="flex-1 min-w-0"
         >
           <InventoryList
             inventory={playerInventory}
-            selectedIndex={cursors.playerInv}
+            active={activePanel === "player"}
+            onSelect={handleSellItem}
             emptyMessage="(no items)"
           />
         </Panel>
 
-        {/* NPC inventory */}
         <Panel
           title={`${npcName}'s Items`}
-          focused={focusedPanel === "npcInv"}
+          focused={activePanel === "npc"}
           className="flex-1 min-w-0"
         >
           <InventoryList
             inventory={npcInventory}
-            selectedIndex={cursors.npcInv}
+            active={activePanel === "npc"}
+            onSelect={handleBuyItem}
             emptyMessage="(no items)"
           />
         </Panel>
       </div>
 
-      {/* Key hints */}
       <KeyHint
-        hints={[
-          { key: "Tab", label: "Switch" },
-          { key: "↑/↓", label: "Select" },
-          { key: "←/Enter", label: "Buy" },
-          { key: "→/Enter", label: "Sell" },
-          { key: "q", label: "Back" },
-        ]}
+        actions={{
+          Switch: "cycle_focus",
+          Select: ["cursor_up", "cursor_down"],
+          "Buy/Sell": "confirm",
+          Back: "cancel",
+        }}
       />
     </div>
   );

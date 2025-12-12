@@ -36,29 +36,23 @@ export const useNavigationStore = create<NavigationStore>((set, get) => ({
 
   setScreen: (screen) => set({ screen }),
 
-  travelTo: (cityId) => {
-    set({
-      currentCityId: cityId,
-      currentLocationId: null,
-      currentNpcId: null,
-      screen: "city",
-    });
-  },
+  travelTo: (cityId) => set({
+    currentCityId: cityId,
+    currentLocationId: null,
+    currentNpcId: null,
+    screen: "city",
+  }),
 
-  enterLocation: (locationId) => {
-    set({
-      currentLocationId: locationId,
-      currentNpcId: null,
-      screen: "npcList",
-    });
-  },
+  enterLocation: (locationId) => set({
+    currentLocationId: locationId,
+    currentNpcId: null,
+    screen: "npcList",
+  }),
 
-  enterNpc: (npcId) => {
-    set({
-      currentNpcId: npcId,
-      screen: "npcInteract",
-    });
-  },
+  enterNpc: (npcId) => set({
+    currentNpcId: npcId,
+    screen: "npcInteract",
+  }),
 
   back: () => {
     const { screen } = get();
